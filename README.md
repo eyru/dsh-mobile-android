@@ -3,6 +3,34 @@
 让手机通过 USB 数据线访问这台电脑上的 DeepSeek Harness。
 **纯客户端**，不在手机上运行 DSH 本体，也不改动 DSH 的任何配置。
 
+> 零第三方依赖 · 25 KB · minSdk 24 / targetSdk 34 · 已在 vivo V2254A（Android 16）实机跑通
+
+## 快速开始
+
+```bash
+# 1. 安装 APK（手机需已开启 USB 调试并授权本机）
+adb install -r dist/DSH手机版-v1.0-debug.apk
+
+# 2. 一键连接（建隧道 + 签发 cookie + 推给 App）
+powershell -ExecutionPolicy Bypass -File _中间件/连接手机.ps1
+
+# 3. 手机上点开「DSH 手机版」
+```
+
+之后**拔线即断，重插再跑一次第 2 步即可**（cookie 30 天有效，不必重新配对）。
+
+### 目录说明
+
+| 路径 | 内容 |
+|---|---|
+| `app/` | Android 源码（纯 framework API，无 Gradle 工程） |
+| `_中间件/tools/` | 构建与签发脚本（`_中间件` 是「内部工具」的意思） |
+| `_中间件/连接手机.ps1` | PC 端一键连接脚本 |
+| `dist/` | 编译好的 APK |
+| `验收截图/` | 真机验证截图 |
+
+---
+
 ## 一、为什么是这条路
 
 让手机连上 DSH 有两个硬障碍，都来自 DSH 自己的设计：
@@ -71,7 +99,7 @@ payload   = { version: 1, authority, issuedAt, expiresAt }
 2. 在电脑上跑：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File "写出\DSH手机版\_中间件\连接手机.ps1"
+powershell -ExecutionPolicy Bypass -File "_中间件\连接手机.ps1"
 ```
 
 这个脚本会自动做完全部五件事：找 adb → 查设备 →
@@ -86,8 +114,8 @@ cookie 30 天内有效，期间不必重新签。
 
 ### 手动安装 APK（脚本会检测到未安装并给出命令）
 
-```powershell
-& "C:\dsh-mobile-build\toolchain\android-sdk\platform-tools\adb.exe" install -r "写出\DSH手机版\dist\DSH手机版-v1.0-debug.apk"
+```bash
+adb install -r "dist/DSH手机版-v1.0-debug.apk"
 ```
 
 ## 四、App 里能设置什么
@@ -125,8 +153,8 @@ cookie 30 天内有效，期间不必重新签。
 
 一条命令重新构建：
 
-```powershell
-node "D:\蓝色大肥鱼工作区\写出\DSH手机版\_中间件\tools\build-apk.mjs"
+```bash
+node "_中间件/tools/build-apk.mjs"
 ```
 
 ### WebView 配置要点
@@ -204,7 +232,7 @@ cookie 通过 `CookieManager.setCookie(url, name=value; Path=/)` 在
 ## 八、文件清单
 
 ```
-写出\DSH手机版\
+.
 ├── app\src\main\
 │   ├── AndroidManifest.xml
 │   ├── java\ai\deepseek\dsh\mobile\MainActivity.java
@@ -214,9 +242,9 @@ cookie 通过 `CookieManager.setCookie(url, name=value; Path=/)` 在
 │       ├── drawable\{ic_whale_fg,ic_launcher_foreground}.xml
 │       └── mipmap-*\ic_launcher.png
 ├── dist\DSH手机版-v1.0-debug.apk        ← 交付物
-└── _中间件\
+├── 验收截图\                             ← 真机验证截图
+└── _中间件\                              ← 内部工具
     ├── 连接手机.ps1                     ← 一键连接
-    ├── mail-body.txt                    ← 给用户的汇报邮件
     └── tools\
         ├── build-apk.mjs                ← 构建脚本
         ├── dsh-mint-cookie.mjs          ← cookie 签发器
@@ -224,7 +252,11 @@ cookie 通过 `CookieManager.setCookie(url, name=value; Path=/)` 在
         └── {diag,parse-boot,readline}.mjs
 ```
 
-> `C:\dsh-mobile-build\` 是构建暂存区（ASCII 路径，见下），
+> ⚠️ **不入库的文件**：构建工具链（约 1 GB，脚本会按需下载/指定路径）、
+> `cookie.json`（**已签名的会话凭据，等同钥匙**）、签名密钥。
+> 详见 `.gitignore`。
+>
+> 构建暂存区默认在 `C:\dsh-mobile-build\`（ASCII 路径，原因见坑 3），
 > 里面是工具链副本与中间产物，可随时删除，重跑构建会自动重建。
 
 ## 九、八个踩过的坑
@@ -274,7 +306,7 @@ error: failed to read file: magic value is 0x04034b50 but AAPT expects 0x5450414
 
 ### 3. aapt2 无法 stat 含中文的路径
 
-工具链放在 `写出\DSH手机版\` 下时，aapt2 报：
+工具链放在**含中文的路径**下时，aapt2 报：
 
 ```
 Failed to stat file '...\android-34\android.jar': No such file or directory
