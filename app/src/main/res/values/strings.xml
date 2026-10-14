@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DSH 手机版</string>
+    <string name="intro">用数据线连接电脑后，在电脑上运行配套连接脚本，即可在此访问 DeepSeek Harness。默认地址指向本机（经 adb 反向隧道转发到电脑）。</string>
+</resources>

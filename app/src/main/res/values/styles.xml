@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 深色底，与 DSH 桌面端视觉一致；避免纯白刺眼 -->
+    <style name="AppTheme" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/dsh_bg</item>
+        <item name="android:statusBarColor">@color/dsh_bg</item>
+        <item name="android:navigationBarColor">@color/dsh_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

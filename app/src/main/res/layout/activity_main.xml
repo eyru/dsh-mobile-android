@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  主界面：根布局含 WebView + 顶栏（状态/刷新/设置）+ 设置面板。
+  颜色全部走 color 资源，无硬编码色值，方便后续换肤。
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dsh_bg">
+
+    <!-- 竖排容器：顶栏占【真实高度】，WebView 填满剩余空间。
+         ⚠️ 顶栏绝不能浮在 WebView 之上 —— 那会盖住 DSH 自己的顶部控件。
+         实测：横屏时 DSH 的「收起侧边栏」按钮就在那一块，被浮层挡到点不到。 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/topbar"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="10dp"
+            android:paddingEnd="4dp"
+            android:background="#FF141414">
+
+            <TextView
+                android:id="@+id/status_text"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textColor="@color/dsh_text_dim"
+                android:textSize="11sp"
+                android:singleLine="true"
+                android:ellipsize="middle"
+                android:text="未连接" />
+
+            <Button
+                android:id="@+id/btn_reload"
+                android:layout_width="46dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="4dp"
+                android:padding="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:text="刷新"
+                android:textSize="11sp"
+                android:textColor="@color/dsh_text"
+                android:background="@color/dsh_btn_bg" />
+
+            <Button
+                android:id="@+id/btn_collapse"
+                android:layout_width="32dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="4dp"
+                android:padding="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:text="▴"
+                android:textSize="13sp"
+                android:textColor="@color/dsh_text"
+                android:background="@color/dsh_btn_bg" />
+
+            <Button
+                android:id="@+id/btn_settings"
+                android:layout_width="34dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="4dp"
+                android:padding="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:text="≡"
+                android:textSize="15sp"
+                android:textColor="@color/dsh_text"
+                android:background="@color/dsh_btn_bg" />
+
+        </LinearLayout>
+
+        <WebView
+            android:id="@+id/webview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <!-- 顶栏收起后浮出的展开按钮。
+         ⚠️ 位置很讲究：必须避开 DSH 自己的控件。
+         实测右上角会被 DSH 的「分栏」按钮占用；右下角被鲸鱼挂件占用。
+         故改为【右边缘垂直居中的窄条】—— 像抽屉把手：
+         只占 22dp 宽，且落在内容区右侧空白处，几乎不遮挡任何可点元素。 -->
+    <Button
+        android:id="@+id/btn_expand"
+        android:layout_width="22dp"
+        android:layout_height="72dp"
+        android:layout_gravity="center_vertical|end"
+        android:padding="0dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:alpha="0.55"
+        android:text="‹"
+        android:textSize="14sp"
+        android:textColor="@color/dsh_text"
+        android:background="@color/dsh_btn_bg"
+        android:visibility="gone" />
+
+    <ScrollView
+        android:id="@+id/settings_panel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F21A1A1A"
+        android:padding="20dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DSH 手机版"
+                android:textColor="@color/dsh_text"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/intro"
+                android:textColor="@color/dsh_text_dim"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="服务器地址"
+                android:textColor="@color/dsh_text"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/input_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:hint="http://127.0.0.1:19387"
+                android:textColor="@color/dsh_text"
+                android:textColorHint="#666666"
+                android:textSize="14sp"
+                android:inputType="textUri"
+                android:background="@color/dsh_btn_bg"
+                android:padding="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="认证 Cookie（可选）"
+                android:textColor="@color/dsh_text"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/input_cookie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:hint="dsh-auth-xxx=v1.xxx.yyy"
+                android:textColor="@color/dsh_text"
+                android:textColorHint="#666666"
+                android:textSize="12sp"
+                android:background="@color/dsh_btn_bg"
+                android:padding="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="留空则只访问公开资源；DSH 首次授权后此 cookie 可自动保存 30 天。"
+                android:textColor="@color/dsh_text_dim"
+                android:textSize="11sp" />
+
+            <Button
+                android:id="@+id/btn_connect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="连接"
+                android:textSize="15sp"
+                android:textColor="#FFFFFF"
+                android:background="@color/dsh_accent" />
+
+            <Button
+                android:id="@+id/btn_close_settings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="返回"
+                android:textSize="14sp"
+                android:textColor="@color/dsh_text_dim"
+                android:background="@color/dsh_btn_bg" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</FrameLayout>

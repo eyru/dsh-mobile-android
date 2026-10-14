@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 自适应图标：深色底 + 简笔鲸鱼尾轮廓（纯路径，无需位图资源） -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/dsh_bg" />
+    <item android:drawable="@drawable/ic_whale_fg" />
+</layer-list>

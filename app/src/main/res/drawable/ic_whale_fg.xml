@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 108dp 视口内居中，安全区 66dp（自适应图标规范） -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 身体：从右下向左上收的流线体 -->
+    <path
+        android:fillColor="#4D6BFE"
+        android:pathData="M28,62 C28,50 36,40 50,38 C64,36 76,42 80,52 C82,58 80,64 74,66 C70,67.5 66,67 62,66 C54,64 46,66 40,72 C36,76 32,74 30,70 C29.3,68 28.6,65 28,62 Z" />
+
+    <!-- 尾鳍：向下一笔斜出的燕尾 -->
+    <path
+        android:fillColor="#4D6BFE"
+        android:pathData="M50,38 C52,32 56,26 62,22 C64,26 64,30 62,34 C60,37 56,39 52,40 Z" />
+    <path
+        android:fillColor="#3A54D6"
+        android:pathData="M62,22 C66,20 70,20 74,22 C71,27 67,30 63,32 Z" />
+
+    <!-- 眼睛 -->
+    <path
+        android:fillColor="#1A1A1A"
+        android:pathData="M44,52 m-3.2,0 a3.2,3.2 0 1,0 6.4,0 a3.2,3.2 0 1,0 -6.4,0 Z" />
+
+    <!-- 喷水两点 -->
+    <path
+        android:fillColor="#4D6BFE"
+        android:fillAlpha="0.55"
+        android:pathData="M40,26 m-2.6,0 a2.6,2.6 0 1,0 5.2,0 a2.6,2.6 0 1,0 -5.2,0 Z" />
+    <path
+        android:fillColor="#4D6BFE"
+        android:fillAlpha="0.35"
+        android:pathData="M52,20 m-2.0,0 a2.0,2.0 0 1,0 4.0,0 a2.0,2.0 0 1,0 -4.0,0 Z" />
+
+</vector>
