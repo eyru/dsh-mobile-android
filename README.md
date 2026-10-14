@@ -1,5 +1,7 @@
 # DSH 手机版（APK）
 
+[中文](README.md) · [**English**](README.en.md)
+
 让手机通过 USB 数据线访问这台电脑上的 DeepSeek Harness。
 **纯客户端**，不在手机上运行 DSH 本体，也不改动 DSH 的任何配置。
 
@@ -233,6 +235,8 @@ cookie 通过 `CookieManager.setCookie(url, name=value; Path=/)` 在
 
 ```
 .
+├── README.md                             ← 本文件（中文）
+├── README.en.md                          ← English
 ├── app\src\main\
 │   ├── AndroidManifest.xml
 │   ├── java\ai\deepseek\dsh\mobile\MainActivity.java
