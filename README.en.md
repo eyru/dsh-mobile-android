@@ -2,12 +2,40 @@
 
 **English** · [中文](README.md)
 
-Access DeepSeek Harness running on your PC from your phone over a USB cable.
+Access DeepSeek Harness running on your PC from your phone. **Two ways to connect:**
+
+| Mode | Cable needed? | Works outside home? | For |
+|---|---|---|---|
+| **① Wireless (recommended)** | ❌ No | ✅ 5G / any Wi-Fi | Everyday use |
+| ② Wired (USB) | ✅ Yes | ❌ Home only | Fallback / no Tailscale |
+
 **Client-only** — it does not run DSH on the phone, and it does not touch your DSH configuration.
 
 > Zero third-party dependencies · 25 KB · minSdk 24 / targetSdk 34 · verified on a real vivo V2254A (Android 16)
 
-## Quick start
+---
+
+## Quick start · Wireless (recommended)
+
+**Prerequisite**: install [Tailscale](https://tailscale.com/download) on **both** the PC and the phone,
+and sign in with the **same account**.
+
+```bash
+# 1. Start the proxy on your PC (it prints the address for your phone)
+powershell -ExecutionPolicy Bypass -File _中间件/dsh-wireless.ps1
+
+# 2. Install the APK (adb is needed once; no cable after this)
+adb install -r dist/DSH手机版-v1.0-debug.apk
+```
+
+**3. Open the app → enter the address the script printed** (e.g. `http://100.x.x.x:18080`) → tap Connect.
+
+On first connect the app **fetches its credential automatically** — you never type a cookie.
+After that, just open the app. **No cable, no need to be on the same Wi-Fi.**
+
+> Want it ready at boot? `_中间件/dsh-wireless.ps1` is already in your Startup folder.
+
+## Quick start · Wired (fallback)
 
 ```bash
 # 1. Install the APK (USB debugging must be enabled and this PC authorized)
@@ -27,10 +55,14 @@ Unplugging the cable drops the connection; **plug it back in and re-run step 2**
 | Path | What it is |
 |---|---|
 | `app/` | Android source (plain framework API, no Gradle project) |
-| `_中间件/tools/` | Build and cookie-minting scripts (`_中间件` means "internal tooling") |
-| `_中间件/连接手机.ps1` | PC-side one-shot connect script |
+| `_中间件/tools/` | Build, cookie-minting and proxy scripts (`_中间件` means "internal tooling") |
+| `_中间件/dsh-wireless.ps1` | **Wireless one-shot launcher** (resolve IP → start proxy → print address) |
+| `_中间件/tailscale-install.ps1` | Silent Tailscale install (run once as administrator) |
+| `_中间件/tools/dsh-proxy.mjs` | Reverse proxy — the heart of the wireless mode (zero-dependency Node) |
+| `_中间件/连接手机.ps1` | Wired-mode one-shot connect script |
 | `dist/` | The compiled APK |
 | `验收截图/` | Real-device verification screenshots |
+| `无线接入方案.md` | Full design notes and measured evidence for the wireless mode |
 
 ---
 
@@ -97,6 +129,60 @@ over a protocol DSH itself defines. Default lifetime is 30 days.
 
 > This only applies when the machine and the credential are the user's own.
 > **It does not apply to someone else's system or someone else's account.**
+
+---
+
+## 2b. How the wireless mode works
+
+The adb approach above works, but it **needs the cable every time**. Wireless mode solves three new problems:
+
+| Problem | Solution |
+|---|---|
+| How does the phone find the PC? | **Tailscale** private encrypted tunnel (P2P hole-punching, no public IP needed) |
+| DSH only trusts loopback hosts | **Local reverse proxy** rewrites `Host`/`Origin` back to `127.0.0.1:19387` |
+| The cookie is bound to the Host, so changing address breaks it | After the rewrite the authority is unchanged, so the **existing cookie stays valid** |
+
+### The proxy does exactly three things
+
+```js
+// _中间件/tools/dsh-proxy.mjs  (zero-dependency Node)
+// 1) Listen on <Tailscale IP>:18080
+// 2) Before forwarding, rewrite Host / Origin / Sec-Fetch-Site to 127.0.0.1:19387
+// 3) Pipe the response through untouched — no buffering
+//    (DSH's RPC is streaming fetch; buffering would break streaming semantics)
+```
+
+**Zero changes on the DSH side** — upgrades, reinstalls and machine swaps don't affect any of this.
+
+### Measured evidence
+
+Same cookie, two paths:
+
+| Request | Direct (spoofed Host) | Through the proxy |
+|---|---|---|
+| `GET /` | **401** | **200** (38,927 bytes, byte-identical to direct) |
+| `GET /api` | **403** (trust fence) | **404** (fence passed, route simply unclaimed) |
+| No cookie | — | **401** (auth still enforced) |
+
+→ The proxy **moves the door, it does not remove the lock**: DSH's trust fence and cookie check both still run.
+
+### How the credential reaches the phone (two channels)
+
+A phone's first request gets a 401. The proxy exposes two pairing endpoints:
+
+| Channel | Path | Notes |
+|---|---|---|
+| Automatic | `/__pairauto` | **For the app.** No key, reusable |
+| Manual | `/__pair?k=<key>` | For browsers. Key is random per launch and **burned after one use** |
+
+On a 401 the app **automatically** hits `/__pairauto`; the proxy replies `302 + Set-Cookie`
+and the **WebView stores the cookie itself**, then reloads — zero user action.
+
+> ⚠️ **Why `/__pairauto` can be keyless**: the proxy binds **only the Tailscale interface**,
+> so reaching that port already requires being on your tailnet — the network layer is
+> authenticated by Tailscale. Neither the LAN nor the public internet can reach it.
+>
+> **If you ever change `PROXY_HOST` to `0.0.0.0`, you must delete this channel.**
 
 ## 3. Usage
 
@@ -360,7 +446,7 @@ errors came back. During device debugging it bit me a third time.
 ### 5. PowerShell collapses a single-element array, so the serial printed as "1"
 
 During device debugging the script printed `已连接设备：1` instead of
-`10ACCY0XCR000Y3`.
+`<device-serial>`.
 
 **Root cause**: when `Where-Object` matches exactly one item, PowerShell
 **unwraps the array into a scalar string**, and `$lines[0]` then returns the

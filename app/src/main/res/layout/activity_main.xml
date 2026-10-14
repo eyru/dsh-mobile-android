@@ -138,23 +138,51 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
-                android:text="服务器地址"
-                android:textColor="@color/dsh_text"
-                android:textSize="14sp" />
+                android:layout_marginTop="22dp"
+                android:text="① 无线连接（推荐）"
+                android:textColor="@color/dsh_accent"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="填电脑的 Tailscale 地址即可。首次连接会自动获取凭据，无需手动粘贴任何东西。\n配对一次后长期有效，以后打开就能直接用。"
+                android:textColor="@color/dsh_text_dim"
+                android:textSize="12sp" />
 
             <EditText
                 android:id="@+id/input_url"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:hint="http://127.0.0.1:19387"
+                android:layout_marginTop="8dp"
+                android:hint="http://100.x.x.x:18080"
                 android:textColor="@color/dsh_text"
                 android:textColorHint="#666666"
                 android:textSize="14sp"
                 android:inputType="textUri"
                 android:background="@color/dsh_btn_bg"
                 android:padding="12dp" />
+
+            <Button
+                android:id="@+id/btn_connect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="连接"
+                android:textSize="15sp"
+                android:textColor="#FFFFFF"
+                android:background="@color/dsh_accent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="② 手动覆盖（一般不用改）"
+                android:textColor="@color/dsh_text"
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -180,19 +208,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="留空则只访问公开资源；DSH 首次授权后此 cookie 可自动保存 30 天。"
+                android:text="自动配对成功后这里会留空 —— cookie 已由 App 自己保存。仅在自动配对不可用时才需要手填。"
                 android:textColor="@color/dsh_text_dim"
                 android:textSize="11sp" />
-
-            <Button
-                android:id="@+id/btn_connect"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="连接"
-                android:textSize="15sp"
-                android:textColor="#FFFFFF"
-                android:background="@color/dsh_accent" />
 
             <Button
                 android:id="@+id/btn_close_settings"

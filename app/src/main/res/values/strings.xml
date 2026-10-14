@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">DSH 手机版</string>
-    <string name="intro">用数据线连接电脑后，在电脑上运行配套连接脚本，即可在此访问 DeepSeek Harness。默认地址指向本机（经 adb 反向隧道转发到电脑）。</string>
+    <string name="intro">两种连法：① 无线配对 —— 电脑跑启动器，把打印出的配对链接粘进来点一下，之后任意网络（5G / 公司 WiFi）都能直连，不需要数据线；② 手动设置 —— 自己填服务器地址与认证 Cookie（USB 反向隧道或已知 cookie 时用）。</string>
 </resources>
