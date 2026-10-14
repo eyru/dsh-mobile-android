@@ -13,6 +13,72 @@ Access DeepSeek Harness running on your PC from your phone. **Two ways to connec
 
 > Zero third-party dependencies · 25 KB · minSdk 24 / targetSdk 34 · verified on a real vivo V2254A (Android 16)
 
+> 🤖 **Want an AI agent to reproduce this?** Hand it [AGENT-PROMPT.md](AGENT-PROMPT.md) —
+> a build sheet written for agents, with the reasoning, the steps, the pitfalls and the acceptance criteria.
+
+---
+
+## Version history: from "cable required" to "works on any network"
+
+### v1.0 — Wired (morning of 2026-10-14)
+
+```
+phone ──USB cable──> PC
+        adb reverse tcp:19387 tcp:19387
+```
+
+**Approach**: an `adb reverse` tunnel pointed the phone's `127.0.0.1:19387` at the PC's.
+A cookie was then minted using DSH's own algorithm and pushed into the app.
+
+**Pros**: DSH keeps listening on loopback only — **zero network exposure**.
+**Fatal flaw**: **the cable was needed every single time**, and it only worked at home.
+
+The user's words:
+
+> "The problem is you have to plug in a cable — **that's not very useful**. Think of a way
+> so I can just open my phone and connect, any time."
+
+That sentence is where v2 started.
+
+### v2.0 — Wireless (early hours of 2026-10-15) **← current**
+
+```
+phone (5G / any Wi-Fi)
+   │  Tailscale private encrypted tunnel (P2P hole-punching)
+   ▼
+PC 100.x.x.x:18080   ← reverse proxy rewrites Host/Origin back to 127.0.0.1:19387
+   ▼
+DSH 127.0.0.1:19387  ← completely unchanged
+```
+
+**Approach**: Tailscale provides the cross-network private tunnel; a local reverse proxy
+rewrites the Host back to loopback. DSH believes it is still being accessed locally, so the
+**trust fence and the cookie check both keep working**.
+
+**Three new problems, solved**:
+
+| Problem | Solution |
+|---|---|
+| How does the phone find the PC? | Tailscale (P2P hole-punching, no public IP needed) |
+| DSH only trusts loopback hosts | The proxy rewrites `Host` / `Origin` / `Sec-Fetch-Site` |
+| The cookie is bound to the Host, so a new address breaks it | After the rewrite the authority is unchanged, so the **existing cookie stays valid** |
+
+**Result**: with **Wi-Fi turned off and only mobile data on**, the user opened the app and
+went straight into DSH.
+
+### Side by side
+
+| | v1.0 Wired | v2.0 Wireless |
+|---|---|---|
+| Cable required | ✅ Every time | ❌ Never |
+| Where it works | Home only | **Anywhere with internet** |
+| Extra software | None | Tailscale (free) |
+| Network exposure | Zero (USB only) | Tailscale interface only — **unreachable from LAN and public internet** |
+| Changes to DSH | None | None |
+| First-time setup | Install APK + plug in | Install APK + install Tailscale + enter address once |
+
+> **v1 is still included** (`_中间件/连接手机.ps1`) as a fallback when Tailscale isn't an option.
+
 ---
 
 ## Quick start · Wireless (recommended)
@@ -63,6 +129,7 @@ Unplugging the cable drops the connection; **plug it back in and re-run step 2**
 | `dist/` | The compiled APK |
 | `验收截图/` | Real-device verification screenshots |
 | `无线接入方案.md` | Full design notes and measured evidence for the wireless mode |
+| `AGENT-PROMPT.md` | **A build sheet for AI agents** (reasoning, steps, pitfalls, acceptance criteria) |
 
 ---
 
